@@ -1,0 +1,1150 @@
+
+let obj = function(j,k) {
+    this.j = j;
+    this.k = k;
+    /*this.getJ = function(){
+        return this.j;
+    }*/
+}
+obj.prototype.getJ = function() {
+    return this.j;
+}
+let obj_2 = function(i, j, k) {
+    obj.call(this, j, k);
+    this.i = i;    
+}
+obj_2.prototype = Object.create(obj.prototype);
+obj_2.prototype.constructor = obj_2;
+//obj_2.prototype = obj.prototype;
+
+let x1 = new obj(1,2);
+let x2 = new obj_2(1, 2, 3);
+
+//console.dir(obj);
+console.dir(x2.getJ());
+//console.log(x1.getJ())
+
+
+let person = function(fname, lname) {
+    var earning = true;
+    this.fname = fname;
+    this.lname = lname;
+
+    this.getEarning = function(){
+        return getPrivateEarning();
+    }
+    function getPrivateEarning(){
+        return earning;
+    }
+}
+person.job = true;
+let person_1 = new person('s', 'm');
+console.log(person_1.getEarning());
+function a(){
+    function b(){
+        function c() {
+            console.log('this'+ this)
+        }
+        c();
+    }
+    b();
+}
+a();
+let randomWeights = [10,20,30];
+function addToBox() {
+    console.log(arguments);
+    let addition = 0;
+    for (let i=0; i < arguments.length; i++) {
+        addition+=arguments[i];
+    }
+    this.addition = addition;
+    console.log(addition);
+}
+let redBox = {};
+addToBox.apply(redBox, randomWeights);
+
+let add = function(num1, num2) {
+    this.num1 = num1;
+    this.num2 = num2
+    //return num1 + num2;
+    this.sub = function() {
+        return this.num1 - this.num2;
+    }
+}
+Object.prototype.Mul = function(){
+    return this.num1 * this.num2;
+}
+add.prototype.addIt = function(){
+    return this.num1 + this.num2;
+}
+//let sum = add(1,2);
+let sum = new add(1, 2);
+console.log(sum);
+
+const myObj = Object.create(Object.prototype);
+const myLiteral = {};
+/*myObj.prototype.newFunction = function() {
+    console.log("i'm new funtion");
+}*/
+console.log(add.prototype)
+console.dir("myObj.prototype"+ myObj.prototype);
+console.dir(myLiteral);
+
+let newAdd = function() {
+    add.call(this, 1,2)
+}
+newAdd.prototype = Object.create(add.prototype);
+let newAddObject = new newAdd(1, 2);
+console.dir(newAdd);
+console.log(newAddObject.addIt())
+
+const car = function() {};
+car.prototype.print = function(){
+    return "I'm a car";
+}
+const toyCar = function(){};
+toyCar.prototype = Object.create(car.prototype);
+toyCar.prototype.print = function() {
+    return "I'm a toy car";
+}
+
+const lego = function(){};
+lego.prototype = Object.create(toyCar.prototype);
+lego.prototype.print = function() {
+    return "I'm Optimus prime";
+}
+
+
+let toyota = new car();
+let legoCar = new toyCar();
+let omptimus = new lego();
+
+console.log(toyota.print());
+console.log(legoCar.print());
+console.log(omptimus.print());
+
+let mammal = function (legs) {
+    this.legs = legs;    
+}
+mammal.prototype = {
+    walk() {
+        return 'walking';
+    },
+    sleep() {
+        return 'sleeping';
+    }
+}
+mammal.prototype.constructor = mammal;
+
+let bat = function(legs, isVeg) {
+    mammal.call(this, legs);
+    this.isVeg = isVeg;
+}
+bat.prototype = Object.create(mammal.prototype);
+bat.prototype.constructor = bat;
+bat.prototype.fly = function(){
+    return "I'm flying";
+}
+console.dir(bat);
+let fruitBat = new bat(4, true);
+console.dir(fruitBat);
+console.log(fruitBat.walk());
+
+let toyota_1 = {
+    drive: function(){
+        return 'Driving toyota';
+    }
+}
+let camry = {
+    drive: function() {
+        return `driving camry`;
+    },
+    wifi: function(){
+        return 'Using WIFI';
+    }
+}
+
+//Object.setPrototypeOf(camry, toyota_1);
+Object.assign(camry, {
+    newMethod: function(){
+        return 'New method';
+    },
+    newProp: 'new Property'
+})
+console.dir(camry);
+console.log(camry.newMethod());
+
+let c1 = function(x,y,z){
+    Object.assign(this, {x,y,z});  
+};
+/*Object.assign(c1, {
+    x: 10,
+    y: 20,
+    z: 30,
+    add: function(){
+        return this.x + this.y + this.z;
+    }
+});*/
+c1.prototype = {
+    sub: function(){
+        return this.z - this.y - this.x;
+    }
+}
+
+console.dir(c1);
+//console.log(c1.add());
+let objFromC1 = new c1(10,20,30);
+console.log(objFromC1.sub());
+
+
+// Factory functions
+ let mycar = function(color) {
+     return Object.assign({}, {
+         color: color,
+         driving:  function() {
+             return 'i drive';
+         }
+     })
+    //Object.assign(this, {color});
+ }
+
+
+ let swift = mycar('red');
+ console.dir(swift)
+ console.log(swift.driving());
+
+
+ let humanFactory = function() {
+     let isCrying = false;
+     return Object.assign({}, {
+         cry: function() {
+             isCrying = true;
+             return this;
+         },
+         isCrying: function() {
+             return isCrying;
+         }
+     });
+ }
+
+let flyFactory = function(obj) {
+    let isFlying = false;
+    return Object.assign({}, obj, {
+        fly: function() {
+            isFlying = true;
+            return this;
+        },
+        isFlying: function() {
+            return isFlying;
+        }
+    })
+}
+const superman = humanFactory(flyFactory({}))
+//const superman = flyFactory(humnaFactory());
+
+console.log(superman.cry().isCrying());
+
+class Car {
+    constructor(color){
+        this.color = color;
+    }
+    drive(){
+        return "I'm driving";
+    }
+}
+console.dir(Car);
+let car_x = (function(){
+    let car_y = function(color){
+        this.color = color;
+    }
+    return car_y;
+})();
+console.dir(car_x);
+
+const redCar = new Car('red');
+console.log(redCar.drive());
+
+class transformers extends Car{
+    constructor(color, supersonic){
+        super(color);
+        this.supersonic = supersonic;
+    }
+    driveFast() {
+        return `${super.drive()} FAST`;
+    }
+    static getPrice(car) {
+        return `${car.color} car is Too costylyyyyys`;
+    }
+}
+class autoBots extends transformers{
+    constructor(color,supersonic) {
+        super(color, supersonic);
+    }
+    static getPrice(car) {
+        return `${car.color} car is not Too costylyyyyys`;
+    }
+}
+let bumbleBee = new transformers('yellow', true);
+let ironHead = new transformers('red', true);
+console.log(transformers.getPrice(bumbleBee));
+console.log(autoBots.getPrice(ironHead));
+console.dir(bumbleBee);
+console.log(bumbleBee.driveFast())
+
+
+let decorator = function(target) {
+    target.item_1 = 'decoration 1';
+}
+//@decorator
+class DecorateMe{
+ constructor(color){
+     this.color = color;
+ }
+ /*getColor(){
+     return this.color;
+ }*/
+}
+Object.defineProperty(DecorateMe.prototype, 'getColor', {
+    value: function(){
+        return this.color;
+    },
+    writable:false,
+    enumerable: true,
+    configurable: true
+})
+let item_1= new DecorateMe('red');
+
+item_1.getColor = function() {
+    return 'green';
+}
+console.log(item_1.getColor());
+let numb = 10;
+let fatArrow = _ => {return numb};
+console.log(fatArrow());
+
+var getMin = (...n) => {
+    Math.min(n)
+}
+getMin([10,20,30]);
+let x = [1,2,3];
+y = [...x];
+console.log(y);
+
+const key_1 = {};
+const key_2 = {
+    num: 1
+}
+const map = new Map();
+map.set(key_1, 'value_1');
+console.log(map);
+var y = 1;
+(function(){
+    console.log(y);
+    y = 2;
+})()
+const constant ={};
+constant['b'] = 'abcd';
+console.log(constant);
+
+var i = Boolean('');
+console.log(i);
+var pizza = {}
+console.dir(pizza);
+var pizzaConstructor =  function() {
+
+}
+console.dir(pizzaConstructor);
+
+let passByValue = {num:1};
+let updateValue = function(valObj) {
+    valObj = {};
+    valObj.num = 2;
+}
+updateValue(passByValue);
+console.dir(passByValue);
+
+let calculateMe = (a, b) => {
+    //return a + b;
+    let doSomething = new Promise(function(resolve, reject){
+        if (a == 3){
+            resolve();
+        }
+    });
+    return doSomething;
+}
+let wrapper = (callFn) => {
+    return callFn;
+}
+let wrapperFn = wrapper.call(null,calculateMe);
+console.log(wrapperFn(1,2));
+wrapperFn(1,2).then(function(){
+console.log('success');
+},function(){
+    console.log('error')
+});
+/*export function addition(a, b) {
+ return a + b;
+} */
+
+let avg = function (n) {
+    let total = 0;
+    for(let i=0; i<n.length; i++){
+        total += n[i];
+    }
+    return total/n.length;
+}
+let spiceUp = function (fn, ...n) {
+    return function(...m){
+        return fn.call(this, n.concat(m))
+    }
+}
+let holdAvg = spiceUp(avg, 1,2,3);
+console.log(holdAvg(4))
+//let holdAvg = avg([1,2,3,4]);
+//console.log(holdAvg);
+let arrayIterate = [1,2,3,4];
+let iterator = arrayIterate[Symbol.iterator]();
+console.dir(iterator);
+function *generator() {
+    yield 1;
+    yield 2;
+}
+
+let iterator_1 = generator();
+this.table = 'window Table';
+const cleanTable = function() {
+    const innerFunction = () => {
+        console.log(`Cleaning ${this.table}`);
+    }
+    //innerFunction.call(this);
+    /*let callMe = innerFunction.bind(this); 
+    callMe(); */
+    innerFunction(); 
+}
+//console.log(window.table);
+this.garage = {
+    table: 'garage table'
+}
+//console.log(this.garage.table);
+
+let Johnsroom = {
+    table: 'johns table',
+}
+let createRoom = function(name){
+    Object.assign(this, {name});
+}
+cleanTable.call(this.garage);
+cleanTable.call(this);
+cleanTable.call(Johnsroom);
+let johnsRoom = new createRoom('john');
+console.dir(johnsRoom);
+console.log(johnsRoom.name);
+
+
+// obeservables
+/*const fakeAsynchData = new Observable(function(observer){
+    setTimeout(function(){
+        observer.next('New Value');
+        observer.complete();
+    },3000)
+});
+fakeAsynchData.subscribe({
+    next(val){
+        console.log(`${val}`);
+    },
+    error(e){
+        console.log(`${e}`);
+    },
+    complete(){
+        console.log('complete');
+    }
+});*/
+const numberArr = [7,120,15,21];
+let findMinMax = function(numberArr) {
+    let tempMin = Infinity;
+    let tempMax = 0;
+    let arraySum = numberArr.reduce(function(acc, item){
+        return acc + item;
+    });
+    let min = 0;
+    let max = 0;
+    for(let i=0; i< numberArr.length; i++){        
+        min = arraySum - numberArr[i];        
+        if (min < tempMin) {
+            tempMin = min;
+        }
+        if (min > tempMax) {
+            tempMax = min;
+        }
+    }
+    console.log(`${tempMax}...${tempMin}`);
+}
+function printSetTime(numberArr) {
+    for(let i=0; i< numberArr.length; i++){        
+        setTimeout(function(){
+            console.log(`${i}....${numberArr[i]}`)
+        },0)
+    }
+}
+let notoPrint = '';
+for(let i=1; i< 101; i++){
+    notoPrint = '';        
+    if(i % 3 == 0){
+        notoPrint+= 'Fizz'
+    }
+    if(i % 5 == 0){
+        notoPrint+= 'buzz';
+    }
+    if(i % 3 != 0 && i % 5 != 0){
+        notoPrint+= i;
+    }
+    console.log(notoPrint);
+}
+printSetTime(numberArr);
+findMinMax(numberArr);
+let numberTogetLength = 1234;
+function getNumberLength(number) {
+    let numberLength = 0;
+    while(number != 0){
+        number = Math.floor(number/10)
+        numberLength++;
+    }
+    console.log(numberLength);
+}
+getNumberLength(numberTogetLength);
+Math.max([1,2,3]);
+
+let time = '09:03PM';
+let changeToMilitiryFormat = function(time) {
+    let hour = time.split(':')[0];
+    let remaining = time.split(':')[1];
+    let min = remaining.substring(0, 2);
+    let dayOrNight = remaining.substring(2, 4);
+    if(dayOrNight == 'PM') {
+        hour = parseInt(hour) + 12;
+    }
+    console.log(`${hour}:${min}${dayOrNight}`);
+}
+changeToMilitiryFormat(time);
+
+
+
+let lastToyindex = function(noOfToys, noOfChildren, startPos) {
+    childrenPos = [];
+    // Arrange children in from startPos
+    for(let j = startPos; j <= noOfChildren; j++){
+        childrenPos.push(j);
+    }
+    let remainingSeats = noOfChildren - childrenPos.length;
+    for(let k = 1; k<=remainingSeats; k++) {
+        childrenPos.push(k);
+    }
+    let toys=[];
+    let j=0;
+    for (let i=1; i<= noOfToys; i++){
+        if(i > noOfChildren){
+            if (j == noOfChildren){
+                j=0;
+            }
+            j++;
+            toys.push(j);
+        } else {
+            toys.push(i);
+        }
+    }
+    console.log(`childrenPos ${childrenPos}`);
+    console.log(`toys ${toys[toys.length-1]}`);
+}
+let newLastToyindex = function(noOfToys, noOfChildren, startPos) {
+    let childIndex = noOfToys % noOfChildren;
+    let finalChildToGetToy = startPos + (childIndex-1);
+    console.log(finalChildToGetToy);
+}
+lastToyindex(18,7,3);
+newLastToyindex(18,7,3);
+var numbers = [1, 2, 3, 4];
+console.log("....."+numbers);
+let printnumbers = function(...numbers){
+    console.dir(numbers);
+}
+//printnumbers(numbers);
+let updatedNum = numbers.map(function(item){
+    return item*3;
+})
+
+console.log(updatedNum);
+function test(){
+var testTry = 1;
+function test_2 (){
+    var testTry;
+    console.log('testTry...'+testTry);
+}
+test_2();
+testTry = 2;
+console.log('testTry...'+testTry);
+}
+test();
+var banner = 5;
+function func_1(){
+    this.x = banner;
+    return this.x;
+}
+console.log(func_1());
+function isTwoPassed(){
+    var args = Array.prototype.slice.call(arguments);
+    return args.indexOf(2) != -1;
+  }
+  
+  isTwoPassed(1,4); //false
+  isTwoPassed(5,3,1,2) //true
+  var foo = 'outside'; 
+  function logIt(){
+    console.log(foo); 
+    var foo = 'inside';
+} 
+  logIt();
+
+
+  function log(){
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift('(app)');
+    
+    console.log(args.join(' '));
+    //console.log.apply(console, args);
+  }
+  
+  log('my message'); //(app) my message
+  log('my message', 'your message'); //(app) my message your message 
+
+  var global_a = 1; 
+function b() {
+    //hoiseted function
+    //var global_a = function(){};
+    global_a = 10; 
+    return; 
+    function global_a() {} 
+} 
+b(); 
+console.log("global_a..."+global_a); 
+// IIFE for settimout
+/*setTimeout((function(){
+
+})(i),10) */
+
+var num = 10,
+    name = "Addy Osmani",
+    obj1 = {
+      value: "first value"
+    },
+    obj2 = {
+     value: "second value"
+    },
+    obj3 = obj2;
+ 
+function change(num, name, obj1, obj2) {
+    num = num * 10;
+    name = "Paul Irish";
+    obj1 = obj2;
+    obj2.value = "new value";
+}
+ 
+change(num, name, obj1, obj2);
+ 
+console.log(num); // 10
+console.log(name);// "Addy Osmani"
+console.log(obj1.value);//"first value"
+console.log(obj2.valuee);//"new value"
+console.log(obj3.valuee);//"new value"  
+
+let converter = function(factor, symbol, input){
+    return function(input){
+        return input * factor + symbol;
+    }    
+}
+  
+var milesToKm = converter(1.62, 'km');
+milesToKm(3); //result here
+
+let sumfunction = function(x){
+    if(arguments.length == 2){
+        return arguments[0] + arguments [1];
+    } else {
+        return function(y){
+            return x + y;
+        }
+    }
+}
+sumfunction(2,5);
+sumfunction(2)(5);
+
+
+let sumDontKnowFun = function(...x){
+    if(arguments.length > 1){
+        Array.prototype.splice(arguments);
+    }
+}
+var arr1 = "john".split('');
+var arr2 = arr1.reverse();
+var arr3 = "jones".split('');
+arr2.push(arr3);
+var hero = {
+    _name: 'John Doe',
+    getSecretIdentity: function (){
+        return this._name;
+    }
+};
+
+var stoleSecretIdentity = hero.getSecretIdentity;
+
+let airthMaticAdd = function(x, y){
+    return x + y;
+}
+
+let performSomeAirthmaticOp = function(a, b, typeOfAirthmaticOp){
+    console.log('Callback...'+typeOfAirthmaticOp(a, b));
+}
+performSomeAirthmaticOp(1,1, airthMaticAdd);
+var length = 10;
+function fn() {
+	console.log(this.length);
+}
+
+var newobj = {
+  length: 5,
+  method: function(fn) {
+    fn();
+    arguments[0]();
+  }
+};
+
+newobj.method(fn, 1);
+
+var new_array = [1, 2, 3];
+
+new_array[10] = 5;
+console.log(new_array);
+let mappedArray = [];
+/*mappedArray = new_array.map(function(elm){
+    return elm*7;
+});*/
+console.log(new_array.map(e=>e*7));
+
+let getSecondMin = (array) => {
+    let newUniqueArray =  [...new Set(array)];
+    newUniqueArray = newUniqueArray.sort(function(a,b){
+        return a > b;
+    });
+    console.log(newUniqueArray);
+}
+
+let second_min = [5,2,3,6,6,5];
+getSecondMin(second_min);
+function sortLibrary() {
+    // var library is defined, use it in your code
+    // use console.log(library) to output the sorted library data
+    library = library.sort(function(a,b){
+        return a.libraryID < b.libraryID;
+    });
+    console.log(library);
+}
+
+// tail starts here
+var library = [
+    {
+        author: 'Bill Gates',
+        title: 'The Road Ahead',
+        libraryID: 1254
+    },
+    {
+        author: 'Steve Jobs',
+        title: 'Walter Isaacson',
+        libraryID: 4264
+    },
+    {
+        author: 'Suzanne Collins',
+        title: 'Mockingjay: The Final Book of The Hunger Games',
+        libraryID: 3245
+    }
+];
+
+sortLibrary();
+function vowelsAndConsonants(s) {
+    let vowels = ['a','e','i','o','u'];
+    let vowelsArr=[];
+    let consonantsArr=[];
+    s = s.split("");
+    for(let i =0; i<s.length; i++){
+        if (vowels.indexOf(s[i]) > -1){
+            vowelsArr.push(s[i]);
+        } else {
+            consonantsArr.push(s[i]);
+        }
+    }
+    vowelsArr = vowelsArr.concat(consonantsArr);
+    console.log(vowelsArr.join('\n'));
+}
+vowelsAndConsonants('javascriptloops');
+class Rectangle {
+    constructor(w, h){
+        this.w = w;
+        this.h = h
+    }
+}
+Rectangle.prototype.area = function() {
+    return this.w * this.h
+};
+// doesnt work
+/*Rectangle.prototype = {
+    area(){
+        return this.w * this.h
+    }
+}*/
+class Square extends Rectangle{
+    constructor(w){
+        super(w);
+    }
+}
+console.dir(Rectangle);
+const square = new Square(8);
+console.log('rec.area() is'+ square.area());
+
+// Tagged litterals
+let taggedLitteralFunction = function(...expressions) {
+    //console.log(literals);
+    console.log(expressions);
+}
+let s1 = 5;
+let s2 = 5;
+taggedLitteralFunction`the area is: ${s1 * s2}.\n the paraniter is ${2 * (s1 + s2)}`
+
+let modifyArray= nums =>
+   nums.map( element => {
+        if(element % 2 === 0) {
+           return element * 2;
+        } else {
+            return element * 3;
+        }
+    });
+    //console.log(nums);
+
+console.log(modifyArray([1,2,3,4]));
+class User {
+    constructor(name) {
+        this.name = name;
+    }
+    get name(){
+        return this._name;
+    }
+    set name(name){
+        this._name = name;
+    }
+}
+let user = new User('john');
+console.log(user.name);
+class Clock {
+    constructor({template,startPainting}) {
+        this._template = template;
+    }    
+}
+  
+  Clock.prototype._render = function() {
+    let date = new Date();
+  
+    let hours = date.getHours();
+    if (hours < 10) hours = '0' + hours;
+  
+    let mins = date.getMinutes();
+    if (mins < 10) min = '0' + mins;
+  
+    let secs = date.getSeconds();
+    if (secs < 10) secs = '0' + secs;
+  
+    let output = this._template
+      .replace('h', hours)
+      .replace('m', mins)
+      .replace('s', secs);
+  
+    console.log(output);
+  };
+  
+  Clock.prototype.stop = function() {
+    clearInterval(this._timer);
+  };
+  
+  Clock.prototype.start = function() {
+    this._render();
+    this._timer = setInterval(() => this._render(), 1000);
+  };
+  //let clock = new Clock({template: 'h:m:s', startPainting: false});
+    //clock.start();
+    let currClock = new Clock({template: 'h:m:s', startPainting: false});
+    //currClock.start();
+    let rabitmixin = {
+        run(speed){
+            console.log('from mixin...'+speed)
+        }
+    }
+    class Animal {
+
+        constructor(name) {
+          this.speed = 0;
+          this.name = name;
+        }
+      
+        run(speed) {
+          this.speed += speed;
+          console.log(`${this.name} runs with speed ${this.speed}.`);
+        }
+      
+        stop() {
+          this.speed = 0;
+          console.log(`${this.name} stopped.`);
+        }
+      
+      }
+      
+      // Inherit from Animal
+      class Rabbit extends Animal {
+        hide() {
+          console.log(`${this.name} hides!`);
+        }
+      }
+      Object.assign(Rabbit.prototype, rabitmixin);
+      Rabbit.prototype.hide = function(){
+          console.log('changes');
+      }
+      let rabbit = new Rabbit("White Rabbit","Veg");
+      
+      rabbit.run(5); // White Rabbit runs with speed 5.
+      rabbit.hide(); // White Rabbit hides!
+      function f(phrase) {
+        return class {
+          sayHi() { alert(phrase) }
+        }
+      }
+      
+      class NewUser extends f("Hello") {}
+      console.dir(NewUser);
+      try {
+        lalala; // error, variable is not defined!
+      } catch(err) {
+        //alert(err.name); // ReferenceError
+        //alert(err.message); // lalala is not defined
+        //alert(err.stack); // ReferenceError: lalala is not defined at ...
+      
+        // Can also show an error as a whole
+        // The error is converted to string as "name: message"
+        //alert(err); // ReferenceError: lalala is not defined
+      }
+let json = '{ "age": 30 }'; // incomplete data
+
+try {
+
+  let user = JSON.parse(json); // <-- no errors
+
+  /*if (!user.name) {
+    throw new SyntaxError("Incomplete data: no name"); // (*)
+  }*/
+
+  //alert( user.name );
+
+} catch(e) {
+  //alert( "JSON Error: " + e.message ); // JSON Error: Incomplete data: no name
+}
+function func() {
+    // start doing something that needs completion (like measurements)
+    try {
+      // ...
+      setTimeout(function(){
+          console.log('in timeout');
+      },0)
+    } finally {
+      // complete that thing even if all dies
+      console.log('in finally');
+    }
+  }
+  func();
+  setTimeout(function() {
+    try {
+        console.log('in timeout');
+    } finally {
+        console.log('in finally');
+    }
+  }, 1000);
+
+
+  let getDuplicateArrays = (arr) => {
+      let pairOfSocks = 0;
+      let sortedArray=  arr.sort((a, b) =>{
+          return a - b;
+      });      
+      for(let i=0; i<sortedArray.length; i++){
+          if(sortedArray[i] && sortedArray[i+1] && sortedArray[i] == sortedArray[i+1]){
+            pairOfSocks++;
+            i = i+1;
+          }
+      }
+      console.log(pairOfSocks);
+  }
+  function removeDuplicate(arr) {        
+    var c;        
+    var len = arr.length;        
+    var result = [];        
+    var obj = {};                
+    for (c = 0; c<len; c++)  {            
+       obj[arr[c]] = 0;        
+    }  
+    for (c in obj) {            
+       result.push(c);        
+    }            
+    return result;      
+ }              
+ getDuplicateArrays([15,6,5,2,3,5,2,2,1,1,5,1,3,3,3,5]);      
+ 
+ //document.write(removeDuplicate(myArr));
+
+ letMinJump = (c) => {
+    let i=0;
+    let jump= 0;
+    while(i !== c.length - 1){
+        if(c[i+2] == 0){
+            i = i+2;
+        } else {
+            i++
+        }
+        jump++;
+    }
+    return jump;
+ }
+ console.log(letMinJump([0,0,1,0,0,1,0]));
+
+function repeatedString(s, n) {   
+    let count = (s.match(/a/g) || []).length;
+    let stringLength = parseInt(n/s.length);
+    let countOfChar = count * stringLength;
+    
+    let remaining = n % s.length;
+    if(remaining > 0){
+        let StrToArry = s.split('');
+        for(let i=0; i< remaining; i++){
+            if(StrToArry[i] == 'a'){
+                countOfChar +=1;
+            }
+        }
+    }    
+    console.log(countOfChar);
+}
+repeatedString('a', 1000000000000);
+
+function rotLeft(a, d) {    
+    for (let i=0; i < d; i++ ){
+        let temp = a[0];
+        a.push(temp);
+        a.splice(a.indexOf(a[0]), 1);
+    }
+    console.log(a);    
+}
+rotLeft([1,2,3,4,5], 4);
+let minimumBribes = (a) =>{
+    let bribes = 0;
+    let endLoop = false;
+    for (let i = 0; i< a.length; i++){
+        let index = i+1;
+        if (a[i] > index){            
+            if((a[i] - index) <= 2){
+                bribes = bribes + (a[i] - index);
+            } else {
+                endLoop = true;
+            }          
+        }
+    }
+    
+    return endLoop ? 'Too chaotic':bribes;   
+}
+console.log(minimumBribes([1,2,5,3,7,8,6,4]));
+
+
+function A(x,y){
+    this.x = x;
+    this.y = y
+    this.display = function(){
+        console.log('hj')
+    }
+}
+function B(a,b){
+    this.x = a;
+    this.b = b
+    this.dis = function(){
+        console.log('hj')
+    }
+}
+var a = new A(1,2);
+var b = new B(3,4);
+console.dir(a);
+console.dir(b);
+
+function fun(x,y){ 
+    for(i in x){
+        if(!(i in y)){
+            delete x[i];
+        }
+    }
+    for (i in y){
+        if(!(i in x)){
+            x[i] = y[i];
+        }
+    }
+    return x;
+}
+var newObj = fun(a,b);
+newObj._x = 3;
+console.dir(newObj);
+
+let myAddrr = (arr) => {
+    arr[1]++;
+    arr = arr+arr;
+}
+var test_arry = new Array(1,3,2,5);
+myAddrr(test_arry);
+console.log(test_arry);
+
+var xy = 3;
+var foo = {
+    xy:2,
+    baz:{
+        xy:1,
+        bar:function(){
+            return this.xy;
+        }
+    }
+}
+var go = foo.baz.bar;
+console.log(go());
+foo.baz.bar();
+var _name = 'sandeep';
+var hero = {
+    _name: 'John Doe',
+    getSecretIdentity: function (){
+        return this._name;
+    }
+};
+
+var stoleSecretIdentity = hero.getSecretIdentity;
+console.log(stoleSecretIdentity())
+
+var test_5 = 0;
+function foo_test(test_5){
+    test_5++;
+    this.test_5 = test_5;
+    return foo_test;
+}
+var bar_test = new new foo_test(6);
+console.log(bar_test.test_5);
+let bar_pre = 1;
+//let we = {};
+let we= {
+    bar_pre:2,
+    baz_pre:++bar_pre
+}
+console.log(we.baz_pre + we.bar_pre);
+    
